@@ -31,7 +31,45 @@ START:
 	ST32	r0, r1
 // End of preamble
 	
-	// Do useful things here...
+	// Fields of shared memory are 
+	//	Int 0: 		Total PWM period
+	//	Int 1-6:	Pulse width for each channel
+LOOP1:
+	LBCO	r0, CONST_PRUSHAREDRAM, 0, 24
+	SET		r30.t0
+	SET		r30.t1
+	SET		r30.t2
+	SET		r30.t3
+	SET		r30.t4
+	SET		r30.t5
+LOOP2:
+		SUB		r0, r0, 1
+		SUB		r1, r1, 1
+		SUB		r2, r2, 1
+		SUB		r3, r3, 1
+		SUB		r4, r4, 1
+		SUB		r5, r5, 1
+		SUB		r6, r6, 1
+		QBNE	SKIP1, r1, 0
+		CLR		r30.t0
+SKIP1:
+		QBNE	SKIP2, r2, 0
+		CLR		r30.t1
+SKIP2:
+		QBNE	SKIP3, r3, 0
+		CLR		r30.t2
+SKIP3:
+		QBNE	SKIP4, r4, 0
+		CLR		r30.t3
+SKIP4:
+		QBNE	SKIP5, r5, 0
+		CLR		r30.t4
+SKIP5:
+		QBNE	SKIP6, r6, 0
+		CLR		r30.t5
+SKIP6:
+		QBEQ	LOOP1, r0, 0
+		QBA		LOOP2
 	
 	HALT									// Halt the processor (although we will never get here...)
 	

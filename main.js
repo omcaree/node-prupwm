@@ -19,3 +19,42 @@
  */
 
 var pru = require('pru');
+
+// Initialise the PRU
+pru.init();
+
+// Set the PWM period in number of PRU cycles (code cycles, not clock cycles!)
+//	I determined this value by monitoring the output on an oscilloscope
+//	Should also be possible to work it out from number of statements in PRU
+//	code
+pru.setSharedRAMInt(0, 266666);
+
+// Another number determined from the oscilloscope
+//	Also happens to be equal to the above number (PWM period in cycles)
+//	divided by 20000 (PWM period in us).
+var multiplier = 13.333;
+
+// Start the PRU
+pru.execute("pru/pwm.bin");
+
+// Cycle through some PWM values
+var step = 5;
+var pwm = 800;
+setInterval(function() {
+	// Update the PRU registers
+	pru.setSharedRAMInt(1, multiplier * pwm);
+	pru.setSharedRAMInt(2, multiplier * pwm);
+	pru.setSharedRAMInt(3, multiplier * pwm);
+	pru.setSharedRAMInt(4, multiplier * pwm);
+	pru.setSharedRAMInt(5, multiplier * pwm);
+	pru.setSharedRAMInt(6, multiplier * pwm);
+	
+	// Increment and print the value
+	pwm+=step;
+	console.log(pwm.toFixed(2));
+	
+	// Reverse the direction when we hit a limit
+	if (pwm <= 800 || pwm >= 2200) {
+		step *= -1;
+	}
+}, 100);
